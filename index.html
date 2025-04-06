@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wayamba Electronics - Modern Tech, Local Heart</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+
+    <style>
+        /* Custom scrollbar (optional, for aesthetics) */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937; /* gray-800 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #facc15; /* yellow-400 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #eab308; /* yellow-500 */
+        }
+
+        /* Style for Three.js Canvas */
+        #heroCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Behind content */
+            opacity: 0.6; /* Make it slightly transparent */
+        }
+
+        /* Style for potential p5 Canvas */
+        #p5CanvasContainer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Behind everything */
+            opacity: 0.1;
+        }
+
+        /* Simple fade-in animation class */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <script>
+        // Tailwind Dark Mode Configuration (Optional - if you want a toggle later)
+        // tailwind.config = {
+        //   darkMode: 'class', // or 'media'
+        //   theme: {
+        //     extend: {
+        //       colors: {
+        //         primary: '#facc15', // yellow-400
+        //         'primary-dark': '#eab308', // yellow-500
+        //         dark: '#111827', // gray-900
+        //         'dark-secondary': '#1f2937', // gray-800
+        //         light: '#f3f4f6', // gray-100
+        //         'light-secondary': '#d1d5db', // gray-300
+        //       }
+        //     }
+        //   }
+        // }
+    </script>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans leading-relaxed">
+
+    <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-gray-900/70 backdrop-blur-md shadow-md" id="navbar">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-yellow-400 hover:text-yellow-500 transition duration-300">
+                Wayamba<span class="text-gray-100"> </span> <span class="text-gray-100"> Electronics</span>
+            </a>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#hero" class="text-gray-300 hover:text-yellow-400 transition duration-300">Home</a>
+                <a href="#products" class="text-gray-300 hover:text-yellow-400 transition duration-300">Products</a>
+                <a href="#features" class="text-gray-300 hover:text-yellow-400 transition duration-300">Why Us</a>
+                <a href="#about" class="text-gray-300 hover:text-yellow-400 transition duration-300">About</a>
+                <a href="#gallery" class="text-gray-300 hover:text-yellow-400 transition duration-300">Gallery</a>
+                <a href="#contact" class="text-gray-300 hover:text-yellow-400 transition duration-300">Contact</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden text-gray-300 hover:text-yellow-400 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-800/90 backdrop-blur-sm">
+            <nav class="flex flex-col items-center py-4 space-y-2">
+                <a href="#hero" class="block px-4 py-2 text-gray-300 hover:text-yellow-400 transition duration-300">Home</a>
+                <a href="#products" class="block px-4 py-2 text-gray-300 hover:text-yellow-400 transition duration-300">Products</a>
+                <a href="#features" class="block px-4 py-2 text-gray-300 hover:text-yellow-400 transition duration-300">Why Us</a>
+                <a href="#about" class="block px-4 py-2 text-gray-300 hover:text-yellow-400 transition duration-300">About</a>
+                <a href="#gallery" class="block px-4 py-2 text-gray-300 hover:text-yellow-400 transition duration-300">Gallery</a>
+                <a href="#contact" class="block px-4 py-2 text-gray-300 hover:text-yellow-400 transition duration-300">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+        <canvas id="heroCanvas"></canvas>
+
+        <div class="relative z-10 text-center px-6">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-4">
+                <span class="block">Cutting Edge Tech,</span>
+                <span class="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500">
+                    Local Style 🔥
+                </span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+                Discover the latest electronics with the best prices and authentic Sri Lankan service. Your neighborhood tech hub.
+            </p>
+            <a href="#products" class="inline-block bg-yellow-400 text-gray-900 font-bold py-3 px-8 rounded-full hover:bg-yellow-500 transition duration-300 transform hover:scale-105 shadow-lg">
+                Explore Products
+            </a>
+        </div>
+    </section>
+
+    <section id="products" class="py-16 md:py-24 bg-gray-800 fade-in-section">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">Our Featured Products</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-gray-900 p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-2 flex flex-col">
+                    <div class="mb-4 text-yellow-400"> <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-center">Laptops</h3>
+                    <p class="text-gray-400 text-center mb-4 flex-grow">High-performance laptops for work, gaming, and creativity. Top brands available.</p>
+                    <button class="mt-auto w-full bg-yellow-400 text-gray-900 font-medium py-2 px-4 rounded-lg hover:bg-yellow-500 transition duration-300">
+                        Explore Laptops
+                    </button>
+                </div>
+                <div class="bg-gray-900 p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-2 flex flex-col">
+                     <div class="mb-4 text-yellow-400"> <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-center">Smartphones</h3>
+                    <p class="text-gray-400 text-center mb-4 flex-grow">Get the latest flagship and budget-friendly smartphones at unbeatable local prices.</p>
+                    <button class="mt-auto w-full bg-yellow-400 text-gray-900 font-medium py-2 px-4 rounded-lg hover:bg-yellow-500 transition duration-300">
+                        Browse Phones
+                    </button>
+                </div>
+                <div class="bg-gray-900 p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-2 flex flex-col">
+                     <div class="mb-4 text-yellow-400"> <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /> <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /> </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-center">Accessories</h3>
+                    <p class="text-gray-400 text-center mb-4 flex-grow">Essential tech accessories: chargers, headphones, cases, power banks, and more.</p>
+                    <button class="mt-auto w-full bg-yellow-400 text-gray-900 font-medium py-2 px-4 rounded-lg hover:bg-yellow-500 transition duration-300">
+                        Shop Accessories
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="py-16 md:py-24 bg-gray-900 fade-in-section">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">Why Choose wayamba electronics?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="p-6">
+                    <div class="mb-4 inline-block p-4 bg-gray-800 rounded-full"> <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /> </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Quality Guaranteed</h3>
+                    <p class="text-gray-400">We source genuine products with manufacturer warranties for your peace of mind.</p>
+                </div>
+                <div class="p-6">
+                    <div class="mb-4 inline-block p-4 bg-gray-800 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0c-1.657 0-3-.895-3-2s1.343-2 3-2 3-.895 3-2 1.343-2 3-2m0 8c1.11 0 2.08-.402 2.599-1M12 18V7" /> </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Affordable Prices</h3>
+                    <p class="text-gray-400">Bringing you the best tech deals in the local market without compromising quality.</p>
+                </div>
+                <div class="p-6">
+                     <div class="mb-4 inline-block p-4 bg-gray-800 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /> </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Friendly Local Service</h3>
+                    <p class="text-gray-400">Authentic, helpful service from people who understand your needs. We're part of the community!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="py-16 md:py-24 bg-gray-800 fade-in-section">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <div class="lg:w-1/2 text-center lg:text-left">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">About Wayamba Electronics</h2>
+                    <div class="prose prose-invert max-w-none text-gray-300 space-y-4">
+                        <p>Born from a passion for technology and a love for our local community, Wayamba Electronics bridges the gap between cutting-edge global trends and accessible local needs.</p>
+                        <p>We believe everyone deserves access to the latest gadgets without the hefty price tag or impersonal service often found elsewhere. We're more than just a store; we're your tech-savvy neighbours, here to offer genuine advice, reliable products, and a shopping experience that feels right at home.</p>
+                        <p>From powerful laptops for professionals to the latest smartphones for staying connected, and all the essential accessories in between, we carefully curate our collection to bring you the best value and performance.</p>
+                        <p>Come visit us and experience the Wayamba electronics difference – where modern tech meets a local heart.</p>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 h-80 lg:h-auto lg:min-h-[400px] bg-gray-700 rounded-xl flex items-center justify-center">
+                    <span class="text-gray-500 text-lg italic">Store Visual / Tech Graphic Placeholder</span>
+                    </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="gallery" class="py-16 md:py-24 bg-gray-900 fade-in-section">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">Glimpse Our World</h2>
+             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="aspect-square bg-gray-800 rounded-lg flex items-center justify-center text-gray-500 italic hover:shadow-xl transition duration-300">Placeholder 1</div>
+                <div class="aspect-square bg-gray-800 rounded-lg flex items-center justify-center text-gray-500 italic hover:shadow-xl transition duration-300">Placeholder 2</div>
+                <div class="aspect-square bg-gray-800 rounded-lg flex items-center justify-center text-gray-500 italic hover:shadow-xl transition duration-300">Placeholder 3</div>
+                <div class="aspect-square bg-gray-800 rounded-lg flex items-center justify-center text-gray-500 italic hover:shadow-xl transition duration-300">Placeholder 4</div>
+                <div class="aspect-square bg-gray-800 rounded-lg flex items-center justify-center text-gray-500 italic hover:shadow-xl transition duration-300 md:col-span-2">Placeholder 5 (Wide)</div>
+                <div class="aspect-square bg-gray-800 rounded-lg flex items-center justify-center text-gray-500 italic hover:shadow-xl transition duration-300">Placeholder 6</div>
+                <div class="aspect-square bg-gray-800 rounded-lg flex items-center justify-center text-gray-500 italic hover:shadow-xl transition duration-300">Placeholder 7</div>
+             </div>
+             <p class="text-center text-gray-500 mt-8">More images of our store and products coming soon!</p>
+        </div>
+    </section>
+
+     <section id="testimonials" class="py-16 md:py-24 bg-gray-800 fade-in-section">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">What Our Customers Say</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-gray-900 p-6 rounded-xl shadow-lg relative">
+                    <svg class="absolute top-4 left-4 h-8 w-8 text-gray-700" fill="currentColor" viewBox="0 0 32 32">
+                      <path d="M9.333 22.667h-4.667v-8h4.667v8zM27.333 22.667h-4.667v-8h4.667v8zM28.667 12.667c0-2.48-0.713-4.733-2.147-6.747-1.433-2.013-3.367-3.253-5.813-3.253-3.427 0-6.367 2.053-7.827 5.133l-1.867 4.853-0.013 0.013h-6.667v12h9.333c1.24 0 2.347-0.627 3.027-1.667l3.013-4.947h1.773c1.467 0 2.667-1.2 2.667-2.667v-2.667z"></path>
+                    </svg>
+                     <p class="text-gray-300 italic mb-4 pt-8">"Great prices and super helpful staff. Found exactly the laptop I needed. Highly recommend!"</p>
+                     <p class="font-semibold text-yellow-400">- Chamal P.</p>
+                </div>
+                 <div class="bg-gray-900 p-6 rounded-xl shadow-lg relative">
+                     <svg class="absolute top-4 left-4 h-8 w-8 text-gray-700" fill="currentColor" viewBox="0 0 32 32">
+                      <path d="M9.333 22.667h-4.667v-8h4.667v8zM27.333 22.667h-4.667v-8h4.667v8zM28.667 12.667c0-2.48-0.713-4.733-2.147-6.747-1.433-2.013-3.367-3.253-5.813-3.253-3.427 0-6.367 2.053-7.827 5.133l-1.867 4.853-0.013 0.013h-6.667v12h9.333c1.24 0 2.347-0.627 3.027-1.667l3.013-4.947h1.773c1.467 0 2.667-1.2 2.667-2.667v-2.667z"></path>
+                    </svg>
+                     <p class="text-gray-300 italic mb-4 pt-8">"Finally, a local electronics store that feels modern and trustworthy. Got my new phone here, fantastic service."</p>
+                     <p class="font-semibold text-yellow-400">- Fathima R.</p>
+                </div>
+                 <div class="bg-gray-900 p-6 rounded-xl shadow-lg relative md:col-span-2 lg:col-span-1">
+                    <svg class="absolute top-4 left-4 h-8 w-8 text-gray-700" fill="currentColor" viewBox="0 0 32 32">
+                      <path d="M9.333 22.667h-4.667v-8h4.667v8zM27.333 22.667h-4.667v-8h4.667v8zM28.667 12.667c0-2.48-0.713-4.733-2.147-6.747-1.433-2.013-3.367-3.253-5.813-3.253-3.427 0-6.367 2.053-7.827 5.133l-1.867 4.853-0.013 0.013h-6.667v12h9.333c1.24 0 2.347-0.627 3.027-1.667l3.013-4.947h1.773c1.467 0 2.667-1.2 2.667-2.667v-2.667z"></path>
+                    </svg>
+                     <p class="text-gray-300 italic mb-4 pt-8">"Needed some specific accessories, and they had everything. The 'machan' vibe is real, very friendly!"</p>
+                     <p class="font-semibold text-yellow-400">- Suresh K.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="py-16 md:py-24 bg-gray-900 fade-in-section">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">Get In Touch</h2>
+            <p class="text-center text-gray-400 mb-12 max-w-xl mx-auto">
+                Have questions? Need advice? Or just want to say hello? Drop us a line or visit our store!
+            </p>
+            <div class="max-w-lg mx-auto bg-gray-800 p-8 rounded-xl shadow-lg">
+                <form action="#" method="POST"> <div class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Name</label>
+                            <input type="text" id="name" name="name" required
+                                   class="block w-full px-4 py-2 rounded-md bg-gray-700 border-transparent focus:border-yellow-400 focus:ring focus:ring-yellow-300 focus:ring-opacity-50 transition duration-200"
+                                   placeholder="Your Name">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                            <input type="email" id="email" name="email" required
+                                   class="block w-full px-4 py-2 rounded-md bg-gray-700 border-transparent focus:border-yellow-400 focus:ring focus:ring-yellow-300 focus:ring-opacity-50 transition duration-200"
+                                   placeholder="you@example.com">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-300 mb-1">Message</label>
+                            <textarea id="message" name="message" rows="4" required
+                                      class="block w-full px-4 py-2 rounded-md bg-gray-700 border-transparent focus:border-yellow-400 focus:ring focus:ring-yellow-300 focus:ring-opacity-50 transition duration-200"
+                                      placeholder="How can we help you?"></textarea>
+                        </div>
+                        <div>
+                            <button type="submit"
+                                    class="w-full bg-yellow-400 text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-yellow-500 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-yellow-400">
+                                Send Message
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="text-center mt-12 text-gray-400">
+                <p>Visit us: [Your Store Address], Colombo</p>
+                <p>Call us: [Your Phone Number]</p>
+                <p>Open Hours: [Your Opening Hours]</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-8 bg-gray-800 border-t border-gray-700">
+        <div class="container mx-auto px-6 text-center text-gray-500">
+            <p>&copy; 2025 Wayamba Electronics. All rights reserved. </p>
+            <p class="text-sm mt-1">Modern Tech, Local Heart - Colombo, Sri Lanka</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Mobile Menu Toggle ---
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        // Close mobile menu when a link is clicked
+        mobileMenu.addEventListener('click', (e) => {
+            if (e.target.tagName === 'A') {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        // --- Navbar Style Change on Scroll ---
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-gray-900/90', 'shadow-xl');
+                navbar.classList.remove('bg-gray-900/70');
+            } else {
+                navbar.classList.remove('bg-gray-900/90', 'shadow-xl');
+                navbar.classList.add('bg-gray-900/70');
+            }
+        });
+
+        // --- Simple Fade-in Animation on Scroll ---
+        const sections = document.querySelectorAll('.fade-in-section');
+        const observerOptions = {
+            root: null, // relative to document viewport
+            rootMargin: '0px',
+            threshold: 0.1 // trigger when 10% of the element is visible
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // Optional: Stop observing once it's visible
+                    // observer.unobserve(entry.target);
+                }
+                // Optional: Remove class if scrolling up
+                // else {
+                //     entry.target.classList.remove('is-visible');
+                // }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+
+        // --- Three.js Hero Background ---
+        let scene, camera, renderer, cube, light, ambientLight;
+        const canvas = document.getElementById('heroCanvas');
+        const heroSection = document.getElementById('hero');
+
+        function initThree() {
+            scene = new THREE.Scene();
+
+            // Camera
+            const fov = 75;
+            const aspect = heroSection.clientWidth / heroSection.clientHeight;
+            const near = 0.1;
+            const far = 1000;
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+            camera.position.z = 4; // Adjusted camera position
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({
+                canvas: canvas,
+                alpha: true, // Make background transparent
+                antialias: true
+            });
+            renderer.setSize(heroSection.clientWidth, heroSection.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio); // For sharper rendering
+
+            // Geometry & Material (More interesting than a simple cube)
+            const geometry = new THREE.IcosahedronGeometry(1.5, 0); // Smoother shape
+             const material = new THREE.MeshStandardMaterial({
+                color: 0xfacc15, // yellow-400
+                metalness: 0.3,
+                roughness: 0.6,
+                wireframe: true, // Keep the wireframe look
+                // flatShading: true // Interesting alternative look
+            });
+
+            cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+
+            // Lights
+            ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Soft white light
+            scene.add(ambientLight);
+
+            light = new THREE.PointLight(0xffffff, 1, 100);
+            light.position.set(5, 5, 5); // Position the light
+            scene.add(light);
+
+            animateThree();
+        }
+
+        let mouseX = 0, mouseY = 0;
+        let targetX = 0, targetY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        function onDocumentMouseMove(event) {
+            mouseX = (event.clientX - windowHalfX) * 0.001; // Adjust sensitivity
+            mouseY = (event.clientY - windowHalfY) * 0.001;
+        }
+        document.addEventListener('mousemove', onDocumentMouseMove);
+
+
+        function animateThree() {
+            requestAnimationFrame(animateThree);
+
+            // Smooth rotation based on mouse position
+            targetX = mouseX * .1; // Adjust influence factor
+            targetY = mouseY * .1;
+
+            cube.rotation.y += 0.005 + (targetX - cube.rotation.y) * 0.05; // Base rotation + mouse influence
+            cube.rotation.x += 0.005 + (targetY - cube.rotation.x) * 0.05;
+            // cube.rotation.z += 0.001; // Subtle z rotation
+
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            const newWidth = heroSection.clientWidth;
+            const newHeight = heroSection.clientHeight;
+
+            camera.aspect = newWidth / newHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(newWidth, newHeight);
+        }
+
+        window.addEventListener('resize', onWindowResize);
+
+        // Initialize Three.js after the DOM is ready
+        document.addEventListener('DOMContentLoaded', initThree);
+
+
+        // --- p5.js Example (Optional: Uncomment if needed) ---
+        /*
+        let p5Sketch = function(p) {
+            let particles = [];
+            const numParticles = 50;
+
+            p.setup = function() {
+                let container = document.getElementById('p5CanvasContainer'); // Target the container
+                let canvas = p.createCanvas(container.offsetWidth, container.offsetHeight);
+                canvas.parent('p5CanvasContainer'); // Attach canvas to container
+                p.noStroke();
+                for(let i = 0; i < numParticles; i++) {
+                    particles.push(new Particle(p));
+                }
+            };
+
+            p.draw = function() {
+                p.clear(); // Clear background each frame
+                // p.background(255, 0); // Transparent background
+                p.fill(255, 255, 255, 30); // Particle color (white, semi-transparent)
+                for(let particle of particles) {
+                    particle.update();
+                    particle.display();
+                }
+            };
+
+            p.windowResized = function() {
+                 let container = document.getElementById('p5CanvasContainer');
+                 p.resizeCanvas(container.offsetWidth, container.offsetHeight);
+            }
+
+            class Particle {
+                constructor(p) {
+                    this.p = p;
+                    this.pos = this.p.createVector(this.p.random(this.p.width), this.p.random(this.p.height));
+                    this.vel = p5.Vector.random2D().mult(this.p.random(0.5, 1.5));
+                    this.size = this.p.random(2, 5);
+                }
+
+                update() {
+                    this.pos.add(this.vel);
+                    this.edges();
+                }
+
+                display() {
+                    this.p.ellipse(this.pos.x, this.pos.y, this.size);
+                }
+
+                edges() {
+                    if (this.pos.x < 0 || this.pos.x > this.p.width) this.vel.x *= -1;
+                    if (this.pos.y < 0 || this.pos.y > this.p.height) this.vel.y *= -1;
+                }
+            }
+        };
+
+        // Initialize p5 sketch after the DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+             // Check if the container exists before creating the sketch
+             if(document.getElementById('p5CanvasContainer')) {
+                new p5(p5Sketch);
+             }
+        });
+        */
+
+
+    </script>
+
+</body>
+</html>
